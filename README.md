@@ -1,167 +1,173 @@
 # PNL-Pipeline-Generador-de-Reportes-Interactivos
 Pipeline de Análisis de Texto en Python que automatiza el flujo de trabajo completo: desde el preprocesamiento, pasando por análisis descriptivo (Nubes de Palabras, N-gramas) y Modelado de Tópicos (BERTopic) . El proceso incluye reducción de dimensionalidad UMAP , detección de outliers  y finaliza con un informe HTML interactivo.
-Este proyecto implementa un pipeline completo de análisis de texto, dividido en bloques independientes que trabajan de forma secuencial:
 
-lectura de datos,
+# PNL-Pipeline-Generador-de-Reportes-Interactivos
+Pipeline completo de Análisis de Texto en Python que automatiza todo el flujo de trabajo: desde la carga y preprocesamiento de datos, generación de nubes de palabras y n-gramas, embeddings vectoriales, reducción dimensional, clustering y modelado de tópicos con BERTopic, hasta producir un informe HTML interactivo.
 
-preprocesamiento,
+Este proyecto está organizado en bloques modulares, cada uno encargado de una etapa del procesamiento.
 
-vectorización,
+---
 
-entrenamiento de modelos clásicos,
+## Estructura del Proyecto
 
-evaluación y métricas.
+---
 
-Todo el sistema fue diseñado para ser fácil de ejecutar desde la terminal, usando argumentos y archivos de prueba incluidos en el repositorio.
+## **Descripción de cada bloque**
 
-El objetivo principal es contar con un flujo reproducible, modular y entendible que permita analizar datos textuales desde cero.
+### 🔹 **Bloque 1 — Argumentos CLI (`bloque1_args.py`)**
+Define los argumentos del programa:
+- Ruta del CSV
+- Columnas a analizar
+- Paleta de colores
+- Idioma
+- Título del reporte
+- Verbose para depuración  
+Incluye validación de archivo y ayuda interactiva.
 
-🚀 Funcionalidades principales
-📥 Entrada del sistema
+---
 
-El programa toma como entrada un archivo .csv y una columna que contiene los textos.
-Los parámetros se manejan desde la terminal mediante argparse.
+### 🔹 **Bloque 2 — Carga de Datos (`bloque2_carga.py`)**
+Funciones para:
+- Cargar el CSV con soporte UTF-8 / ISO-8859-1
+- Unir varias columnas de texto si es necesario
+- Validar columnas existentes
+- Limpiar filas vacías
 
-Ejemplo general (incluido en commands.txt):
+Retorna un DataFrame con una única columna: `texto`.
 
-python main.py --input "data/ejemplo.csv" --columna "texto"
+---
 
-🔧 Bloque 1 – Manejo de argumentos
+### 🔹 **Bloque 3 — Preprocesamiento (`bloque3_preproc.py`)**
+Incluye:
+- Limpieza inicial del texto
+- Lematización con spaCy
+- Stopwords del idioma elegido
+- Eliminación de acentos
+- Conversión a tokens  
+Produce:
+- `textos_limpios`
+- `tokens_por_doc`
 
-Este módulo define todos los parámetros que el usuario puede activar:
+---
 
-ruta del CSV
+### 🔹 **Bloque 4 — WordCloud (`bloque4_wordcloud.py`)**
+Genera una nube de palabras con:
+- Paletas configurables
+- Guardado automático en `output/nube.png`
 
-nombre de la columna de texto
+---
 
-opción para activar el preprocesamiento
+### 🔹 **Bloque 5 — N-gramas (`bloque5_ngrams.py`)**
+Generación de:
+- Bigramas
+- Trigramas  
+Incluye:
+- Filtro de stopwords
+- Selección de top n-gramas
+- Gráfica en PNG con la paleta seleccionada
+- - Guardado automático en `output/trigrama.png`
+  - - Guardado automático en `output/bigrama.png`
+
+---
+
+### 🔹 **Bloque 6 — Embeddings (`bloque6_embeddings.py`)**
+Crea vectores de embeddings utilizando:
+
+Incluye información de debug:
+- Número de documentos
+- Dimensionalidad del vector
+
+---
+
+### 🔹 **Bloque 7 — Modelado de Tópicos (BERTopic) (`bloque7_bertopic.py`)**
+Implementa el pipeline completo:
+1. **Embeddings**
+2. **UMAP** para reducción
+3. **HDBSCAN** para clustering
+4. **BERTopic** para extracción de temas
+
+Devuelve un diccionario con:
+- Modelo BERTopic
+- Tópicos originales
+- Probabilidades
+- Embeddings
+
+---
+
+### **🔹 BLOQUE 8 — Ablación de tópicos**
+Reduce tópicos usando:
+- reducción de dimensionalidad  
+- eliminación de temas irrelevantes
+- reducción o depuración de tópicos usando las herramientas internas de BERTopic
+
+Devuelve modelo reducido + estadísticas.
+
+---
+
+### **🔹 BLOQUE 9 — Visualización (UMAP + Plotly)**  
+Convierte colormaps de Matplotlib a HEX.  
+Genera **visualización interactiva** UMAP 2D.  
+Crea un archivo HTML embebible.
+
+---
+
+### **🔹 BLOQUE 10 — Generación del HTML final**
+Construye un **reporte web profesional**, con:
+
+- WordCloud  
+- Bigrams y trigrams  
+- Tópicos originales  
+- Tópicos reducidos  
+- Outliers  
+- UMAP interactivo  
+
+Todo embebido sin rutas externas.
+
+---
+
+### **🔹 BLOQUE 11 — Outliers**
+Usa Isolation Forest + PCA para detectar y graficar textos atípicos.
+
+---
+
+### **🔹 main.py**
+Integra todo el pipeline y:
+1. Ejecuta cada bloque  
+2. Guarda todas las imágenes  
+3. Genera el HTML final  
+4. Imprime avances si `--verbose` está activado  
+
+---
+
+## 🛠️ **Requisitos y Versiones Recomendadas**
+
+Para evitar errores con BERTopic, HDBSCAN y UMAP, se recomienda usar **estas versiones fijas**:
+
+```txt
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.3.2
+matplotlib==3.8.0
+seaborn==0.13.2
+wordcloud==1.9.3
+nltk==3.8.1
+spacy==3.7.2
+umap-learn==0.5.4
+hdbscan==0.8.33
+bertopic==0.16.0
+plotly==5.22.0
+python-dateutil==2.9.0.post0
+```
+Salida final
+```
+El sistema genera:
+/salidas/
+ ├── nube_palabras.png
+ ├── bigramas.png
+ ├── trigramas.png
+ ├── umap_plot.html
+ ├── reporte_final.html   ← ARCHIVO PRINCIPAL
+```
 
-tipo de vectorización
 
-modelo de clasificación
 
-modo verboso
-
-Los argumentos permiten combinar distintos flujos sin modificar el código.
-
-🧹 Bloque 2 – Carga de archivos
-
-Incluye funciones para:
-
-leer CSV con codificaciones variadas
-
-validación de columnas
-
-limpieza básica del dataset (NaN, espacios, textos vacíos)
-
-El bloque siempre regresa un DataFrame limpio y listo para procesar.
-
-✏️ Bloque 3 – Preprocesamiento de texto
-
-Aquí se realiza el tratamiento del texto antes de vectorizarlo.
-Tu implementación incluye:
-
-✔️ Conversión a minúsculas
-✔️ Eliminación de signos, números y URLs
-✔️ Normalización de espacios
-✔️ Tokenización por expresiones regulares
-✔️ Stopwords personalizadas
-✔️ Lematización sencilla opcional
-
-El resultado final queda en una columna llamada:
-
-texto_procesado
-
-🔢 Bloque 4 – Vectorización
-
-Se implementaron tres métodos clásicos:
-
-Bag of Words
-
-TF–IDF
-
-CountVectorizer
-
-Cada uno puede activarse desde la línea de comandos.
-
-El vector resultante se usa directamente por los clasificadores.
-
-🤖 Bloque 5 – Clasificadores
-
-Incluyes el entrenamiento de varios modelos clásicos:
-
-Regresión logística
-
-Naive Bayes
-
-SVM lineal
-
-Árbol de decisión
-
-KNN
-
-Cada modelo genera:
-
-matriz de confusión
-
-accuracy
-
-reporte de clasificación
-
-Los resultados se imprimen en consola.
-
-📄 Bloque 6 – Ejecución orquestada (main.py)
-
-Este archivo une todos los bloques y ejecuta el pipeline completo:
-
-Leer argumentos
-
-Cargar CSV
-
-Preprocesar texto
-
-Vectorizar
-
-Entrenar modelo
-
-Mostrar métricas
-
-El flujo es completamente automático.
-
-📁 Estructura del proyecto
-data/
-    ejemplo.csv
-    comandos_de_prueba.txt   # ejecutables que usa el proyecto
-modulos/
-    bloque1_args.py
-    bloque2_carga.py
-    bloque3_preproc.py
-    bloque4_vectorizacion.py
-    bloque5_modelos.py
-main.py
-README.md
-
-📦 Requisitos y versiones usadas
-
-Estas son las versiones reales que anotaste en tu archivo commands.txt:
-
-Python 3.13
-numpy 2.1.1
-pandas 2.2.2
-scikit-learn 1.5.0
-nltk 3.9
-
-
-(Si deseas agrego más versiones o verifico las que tienes instaladas.)
-
-📂 Archivo ejecutable: commands_example.txt
-
-Incluye ejemplos listos para correr:
-
-python main.py --input "data/ejemplo.csv" --columna "texto" --modelo "svm"
-python main.py --input "data/ejemplo.csv" --columna "comentario" --preprocesar 1 --vector "tfidf"
-python main.py --input "data/otra.csv" --columna "review" --modelo "logreg"
-
-👨‍💻 Autor
-
-Alejandro Frías Cortéz — Proyecto académico de procesamiento de lenguaje natural en Python.

@@ -169,5 +169,10 @@ El sistema genera:
  ├── reporte_final.html   ← ARCHIVO PRINCIPAL
 ```
 
+### Ejecutar el script principal
+
+```bash
+python main.py --archivo .csv --columnas "" --paleta (1-5) --idioma ('es', 'en', 'fr', 'pt', 'multi') --titulo "" -v
+python main.py --archivo reseñas_Six_Flags_México.csv --columnas Review --paleta 2 --idioma es --titulo "Six Flags" -v
 
 
